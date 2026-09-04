@@ -6,7 +6,10 @@ import dev.sunix.ledger.domain.LedgerTransaction;
 import dev.sunix.ledger.domain.Posting;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -32,7 +35,7 @@ public class LedgerRepository {
                 .param("currency", account.currency())
                 .param("normalSide", account.normalSide().name())
                 .param("allowNegative", account.allowNegative())
-                .param("createdAt", account.createdAt())
+                .param("createdAt", databaseTime(account.createdAt()))
                 .update();
     }
 
@@ -105,10 +108,10 @@ public class LedgerRepository {
                 .param("id", transaction.id())
                 .param("reference", transaction.reference())
                 .param("description", transaction.description())
-                .param("reversalOf", transaction.reversalOf())
+                .param("reversalOf", transaction.reversalOf(), Types.OTHER)
                 .param("createdBy", transaction.createdBy())
                 .param("requestId", transaction.requestId())
-                .param("createdAt", transaction.createdAt())
+                .param("createdAt", databaseTime(transaction.createdAt()))
                 .update();
 
         for (Posting posting : transaction.postings()) {
@@ -125,7 +128,7 @@ public class LedgerRepository {
                     .param("side", posting.side().name())
                     .param("amountMinor", posting.amountMinor())
                     .param("currency", posting.currency())
-                    .param("createdAt", posting.createdAt())
+                    .param("createdAt", databaseTime(posting.createdAt()))
                     .update();
         }
     }
@@ -139,7 +142,7 @@ public class LedgerRepository {
                 .param("key", key)
                 .param("requestHash", requestHash)
                 .param("transactionId", transactionId)
-                .param("createdAt", createdAt)
+                .param("createdAt", databaseTime(createdAt))
                 .update();
     }
 
@@ -153,7 +156,7 @@ public class LedgerRepository {
                         rs.getObject("reversal_of", UUID.class),
                         rs.getString("created_by"),
                         rs.getString("request_id"),
-                        rs.getObject("created_at", Instant.class),
+                        rs.getObject("created_at", OffsetDateTime.class).toInstant(),
                         List.of()))
                 .optional()
                 .map(transaction -> new LedgerTransaction(
@@ -181,7 +184,7 @@ public class LedgerRepository {
                 rs.getString("currency"),
                 EntrySide.valueOf(rs.getString("normal_side")),
                 rs.getBoolean("allow_negative"),
-                rs.getObject("created_at", Instant.class));
+                rs.getObject("created_at", OffsetDateTime.class).toInstant());
     }
 
     private static Posting mapPosting(ResultSet rs, int rowNum) throws SQLException {
@@ -192,7 +195,11 @@ public class LedgerRepository {
                 EntrySide.valueOf(rs.getString("side")),
                 rs.getLong("amount_minor"),
                 rs.getString("currency"),
-                rs.getObject("created_at", Instant.class));
+                rs.getObject("created_at", OffsetDateTime.class).toInstant());
+    }
+
+    private static OffsetDateTime databaseTime(Instant instant) {
+        return instant.atOffset(ZoneOffset.UTC);
     }
 
     public record IdempotencyRecord(String key, String requestHash, UUID transactionId) {}
