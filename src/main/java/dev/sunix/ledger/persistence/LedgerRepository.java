@@ -82,9 +82,9 @@ public class LedgerRepository {
     }
 
     public void acquireIdempotencyLock(String key) {
-        jdbc.sql("SELECT pg_advisory_xact_lock(hashtextextended(:key, 0))")
+        jdbc.sql("SELECT 1 FROM pg_advisory_xact_lock(hashtextextended(:key, 0))")
                 .param("key", key)
-                .query(Long.class)
+                .query(Integer.class)
                 .single();
     }
 
