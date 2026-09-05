@@ -1,4 +1,4 @@
-# ledger-service
+# LedgerCore
 
 A small double-entry ledger focused on write correctness: balanced postings, immutable history, idempotent commands, deterministic account locking and explicit reversals.
 

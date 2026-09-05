@@ -1,6 +1,6 @@
 spring:
   application:
-    name: ledger-service
+    name: ledgercore
   datasource:
     url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/ledger}
     username: ${DATABASE_USERNAME:ledger}

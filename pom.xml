@@ -12,9 +12,9 @@
     </parent>
 
     <groupId>dev.sunix</groupId>
-    <artifactId>ledger-service</artifactId>
+    <artifactId>ledgercore</artifactId>
     <version>0.1.0-SNAPSHOT</version>
-    <name>ledger-service</name>
+    <name>ledgercore</name>
     <description>Double-entry ledger service with immutable postings and idempotent writes</description>
 
     <properties>
